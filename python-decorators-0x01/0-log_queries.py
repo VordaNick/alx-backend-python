@@ -1,18 +1,27 @@
 import sqlite3
 import functools
+from datetime import datetime
 
 #### decorator to lof SQL queries
 
- def log_queries(func):
+ ef log_queries(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        # Check if a query was passed as a positional or keyword argument
+        # Extract the query from args or kwargs
         query = kwargs.get('query')
         if not query and args:
             query = args[0]
 
         print(f"[LOG] Executing SQL Query: {query}")
-        return func(*args, **kwargs)
+
+        start_time = datetime.time()
+        result = func(*args, **kwargs)
+        end_time = datetime.time()
+
+        duration = end_time - start_time
+        print(f"[LOG] Execution Time: {duration:.4f} seconds")
+
+        return result
     return wrapper
 
 @log_queries
