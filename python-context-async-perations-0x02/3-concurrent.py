@@ -1,24 +1,25 @@
-import sqlite3
 import asyncio
-
-# ✅ Helper to run a query asynchronously using a thread (since sqlite3 is blocking)
-async def async_query(db, query, params=()):
-    loop = asyncio.get_event_loop()
-    def run_query():
-        with sqlite3.connect(db) as conn:
-            cursor = conn.cursor()
-            cursor.execute(query, params)
-            return cursor.fetchall()
-    return await loop.run_in_executor(None, run_query)
+import aiosqlite
 
 # ✅ Async function to fetch all users
 async def async_fetch_users():
-    print("[FETCH ALL USERS] Starting...")
-    users = await async_query("users.db", "SELECT * FROM users")
-    print("[FETCH ALL USERS] Completed.")
-    return users
+    print("[ALL USERS] Fetching...")
+    async with aiosqlite.connect("users.db") as db:
+        async with db.execute("SELECT * FROM users") as cursor:
+            users = await cursor.fetchall()
+            print("[ALL USERS] Done.")
+            return users
 
 # ✅ Async function to fetch users older than 40
 async def async_fetch_older_users():
-    print("[FETCH OLDER USERS] Starting...")
-    users = await async
+    print("[OLDER USERS] Fetching...")
+    async with aiosqlite.connect("users.db") as db:
+        async with db.execute("SELECT * FROM users WHERE age > ?", (40,)) as cursor:
+            users = await cursor.fetchall()
+            print("[OLDER USERS] Done.")
+            return users
+
+# ✅ Concurrent runner using asyncio.gather
+async def fetch_concurrently():
+    all_users, older_users = await asyncio.gather(
+        async_fetch_us
