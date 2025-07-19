@@ -73,3 +73,7 @@ def memoize(fn: Callable) -> Callable:
         return getattr(self, attr_name)
 
     return property(memoized)
+
+
+
+["class TestAccessNestedMap(unittest.TestCase", "def test_access_nested_map("] - ["class TestAccessNestedMap(TestCase", "def test_access_nested_map("] - 
