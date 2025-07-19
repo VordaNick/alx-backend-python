@@ -77,3 +77,4 @@ def memoize(fn: Callable) -> Callable:
 
 
 ["class TestAccessNestedMap(unittest.TestCase", "def test_access_nested_map("] - ["class TestAccessNestedMap(TestCase", "def test_access_nested_map("] - 
+@parameterized.expand
