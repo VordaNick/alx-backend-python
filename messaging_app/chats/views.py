@@ -3,17 +3,18 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Message, Conversation
 from .serializers import MessageSerializer
-from .permissions import IsParticipantOfConversation
+from .filters import MessageFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from .pagination import CustomPagination
 
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MessageFilter
+    pagination_class = CustomPagination
 
     def get_queryset(self):
-        """
-        Only return messages from a conversation the user participates in.
-        URL should include ?conversation_id=<id>
-        """
         conversation_id = self.request.query_params.get("conversation_id")
         user = self.request.user
 
@@ -23,19 +24,14 @@ class MessageViewSet(viewsets.ModelViewSet):
         try:
             conversation = Conversation.objects.get(id=conversation_id)
         except Conversation.DoesNotExist:
-            # Explicit 404
-            self.permission_denied(self.request, message="Conversation not found.", code=status.HTTP_404_NOT_FOUND)
+            self.permission_denied(self.request, message="Conversation not found.")
 
         if user not in conversation.participants.all():
-            # Explicit 403
-            self.permission_denied(self.request, message="You are not a participant.", code=status.HTTP_403_FORBIDDEN)
+            self.permission_denied(self.request, message="You are not a participant.")
 
         return Message.objects.filter(conversation=conversation)
 
     def create(self, request, *args, **kwargs):
-        """
-        Override to manually check participant status before allowing message creation.
-        """
         conversation_id = request.data.get("conversation_id")
         user = request.user
 
