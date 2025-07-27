@@ -104,3 +104,24 @@ class OffensiveLanguageMiddleware:
         else:
             ip = request.META.get("REMOTE_ADDR")
         return ip
+
+
+
+from django.http import HttpResponseForbidden
+
+class RolePermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Only proceed if user is authenticated
+        user = getattr(request, 'user', None)
+
+        if user is None or not user.is_authenticated:
+            return HttpResponseForbidden("Access Denied: Authentication required.")
+
+        # Check if user has required role
+        if user.role not in ['admin', 'moderator']:
+            return HttpResponseForbidden("Access Denied: Insufficient role permissions.")
+
+        return self.get_response(request)
