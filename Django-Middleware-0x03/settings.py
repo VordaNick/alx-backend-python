@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'chats.middleware.RequestLoggingMiddleware',
     'chats.middleware.RestrictAccessByTimeMiddleware',
 ]
-
+"here"
 ROOT_URLCONF = 'messaging_app.urls'
 
 TEMPLATES = [
